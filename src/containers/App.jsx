@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { connect } from "react-redux";
 import CardList from "../components/CardList";
 import SearchBox from "../components/SearchBox";
 import './App.css';
 import Scroll from "../components/Scroll";
-import ErrorBoundry from '../components/ErrorBoubdry'
+import ErrorBoundry from '../components/ErrorBoubdry';
 
-const App = () => {
+import { setSearchField } from "../actions";
+
+const mapStateToProps = state => ({
+    searchField: state.searchField
+})
+const mapDispatchToProps = dispatch => ({
+    onSearchChange: (event) => dispatch(setSearchField(event.target.value))
+})
+
+const App = (props) => {
     const [robots, setRobots] = useState([]);
-    const [searchfield, setSearchfield] = useState('');
+    const { searchField, onSearchChange } = props;
 
     useEffect(() => {
         fetch('https://jsonplaceholder.typicode.com/users')
@@ -15,11 +25,7 @@ const App = () => {
             .then(users => setRobots(users));
     }, [])
 
-    const onSearchChange = (event) => {
-        setSearchfield(event.target.value)
-    }
-
-    const filteredRobots = robots.filter(robot => robot.name.toLocaleLowerCase().includes(searchfield.toLocaleLowerCase()))
+    const filteredRobots = robots.filter(robot => robot.name.toLocaleLowerCase().includes(searchField.toLocaleLowerCase()))
     return !robots.length ?
         <h1 className='tc'>Loading</h1> :
         <div className='tc'>
@@ -31,4 +37,6 @@ const App = () => {
         </div>
 }
 
-export default App;
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
